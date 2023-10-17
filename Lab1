@@ -1,0 +1,54 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <unordered_set>
+
+bool isVowel(char c) {
+    c = tolower(c);  
+    return (c == 'a'  c == 'e'  c == 'i'  c == 'o'  c == 'u');
+}
+
+bool hasMoreVowels(const std::string& word) {
+    int vowels = 0;
+    int consonants = 0;
+    for (char c : word) {
+        if (isalpha(c)) {  
+            if (isVowel(c)) {
+                vowels++;
+            } else {
+                consonants++;
+            }
+        }
+    }
+    return vowels > consonants;
+}
+
+void findWordsWithMoreVowels(std::ifstream& inputFile) {
+    std::unordered_set<std::string> uniqueWords;
+    std::string word;
+
+    while (inputFile >> word) {
+        if (word.length() <= 30 && hasMoreVowels(word)) {
+            uniqueWords.insert(word);
+        }
+    }
+
+    std::cout << "Words with more vowels:" << std::endl;
+    for (const std::string& uniqueWord : uniqueWords) {
+        std::cout << uniqueWord << std::endl;
+    }
+}
+
+int main() {
+    std::ifstream inputFile("textfile.txt");
+    
+    if (!inputFile) {
+        << "Error. Unable to open file." << std::endl;
+        return 1;
+    }
+
+    findWordsWithMoreVowels(inputFile);
+    inputFile.close();
+
+    return 0;
+}
