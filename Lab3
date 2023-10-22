@@ -1,0 +1,106 @@
+import java.io.*;
+import java.util.*;
+import java.lang.String;
+import java.util.ArrayList;
+
+public class Automaton {
+	
+	final static String inputFilePath = "/workspaces/codespaces-blank/input.txt"; 
+	
+	private int statesAmount, alphabetSize;
+	private boolean[] isFinal;
+	private List<Integer> current_states;
+	
+	private Map<Character, Integer> alphabet;
+	private List<Integer>[][] QS;
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	public Automaton() throws Exception{
+		current_states = new ArrayList<>();
+		alphabet =  new HashMap<Character, Integer>();
+		
+		try (Scanner scanner = new Scanner(new FileInputStream(inputFilePath))) {
+		
+			alphabetSize = scanner.nextInt();
+			statesAmount = scanner.nextInt();
+			
+			isFinal = new boolean[statesAmount];
+			Arrays.fill(isFinal, false);
+			QS = new ArrayList[statesAmount][alphabetSize];
+		
+			parse_input(scanner);
+			
+		}
+		catch (IOException ex) {
+            System.out.println("File not found.");
+        }
+		catch (Exception ex) 
+		{
+			System.out.println(ex.getClass());
+			 throw new Exception("Input format error");
+		}
+	}
+	
+	private void parse_input(Scanner scanner) throws Exception{
+		int start, k = 0, finals;
+		start = scanner.nextInt();
+		finals = scanner.nextInt();
+		current_states.add(start);
+		for (int i = 0; i < finals; ++i) {
+			int stFin = scanner.nextInt();
+			if (stFin >= statesAmount) throw new Exception();
+			isFinal[stFin] = true;
+		}
+		 
+		while(scanner.hasNext()) {
+			int stFrom = scanner.nextInt();
+			String str = scanner.next();
+			char ch = str.charAt(0);
+			int stTo = scanner.nextInt();
+			
+			if (str.length() > 1) throw new Exception();
+			if (!alphabet.containsKey(ch)) {
+				if (k == alphabetSize) throw new Exception();
+				alphabet.put(ch, k); 
+				k++;
+			}
+			
+			int p = alphabet.get(ch);
+			if (stFrom >= statesAmount || stTo >= statesAmount) throw new Exception();
+			
+			if (QS[stFrom][p] == null) QS[stFrom][p] = new ArrayList<>();
+			QS[stFrom][p].add(stTo);
+		}
+	}
+	
+	public void get_word(String word) {
+		System.out.println("0: " + current_states.get(0));
+		for (int i = 0; i < word.length(); ++i) {
+			System.out.print( (i+1) + ": ");
+			Integer ch = alphabet.get(word.charAt(i));
+			if (ch == null) {
+				System.out.println("");
+				break;
+			}
+			List<Integer> new_states = new ArrayList<>();
+			for (int from:current_states) {
+				if (QS[from][ch] != null)
+				for (int to: QS[from][ch]) {
+					new_states.add(to);
+					System.out.print(to + " ");
+				}
+			}
+			System.out.println("");
+			current_states = new_states;
+			if (current_states == null || current_states.size() == 0) break;
+		}
+		System.out.print("Final states: ");
+		for (int st:current_states) {
+			if (isFinal[st]) System.out.print(st + " ");
+		}
+		System.out.println("");
+	}
+			
+}
