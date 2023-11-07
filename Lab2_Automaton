@@ -1,0 +1,118 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <map>
+#include <stdexcept>
+
+class Automaton {
+public:
+    Automaton() {
+        current_states = std::vector<int>();
+        alphabet = std::map<char, int>();
+
+        std::ifstream input(inputFilePath);
+        if (!input.is_open()) {
+            std::cerr << "File not found." << std::endl;
+            throw std::runtime_error("File not found");
+        }
+
+        input >> alphabetSize >> statesAmount;
+        isFinal = std::vector<bool>(statesAmount, false);
+        QS = std::vector<std::vector<std::vector<int>>>(statesAmount, std::vector<std::vector<int>>(alphabetSize));
+
+        parseInput(input);
+    }
+
+    void getWord(std::string word) {
+        std::cout << "0: " << current_states[0] << std::endl;
+        for (size_t i = 0; i < word.length(); ++i) {
+            std::cout << i + 1 << ": ";
+            char ch = word[i];
+            if (alphabet.find(ch) == alphabet.end()) {
+                std::cout << "" << std::endl;
+                break;
+            }
+            int p = alphabet[ch];
+            std::vector<int> new_states;
+            for (int from : current_states) {
+                if (QS[from][p].size() > 0) {
+                    for (int to : QS[from][p]) {
+                        new_states.push_back(to);
+                        std::cout << to << " ";
+                    }
+                }
+            }
+            std::cout << "" << std::endl;
+            current_states = new_states;
+            if (current_states.empty()) break;
+        }
+        std::cout << "Final states: ";
+        for (int st : current_states) {
+            if (isFinal[st]) {
+                std::cout << st << " ";
+            }
+        }
+        std::cout << "" << std::endl;
+    }
+
+private:
+    const std::string inputFilePath = "C:\\Users\\Diashka\\eclipse-workspace\\Laba2\\src\\input";
+    int statesAmount, alphabetSize;
+    std::vector<bool> isFinal;
+    std::vector<int> current_states;
+    std::map<char, int> alphabet;
+    std::vector<std::vector<std::vector<int>>> QS;
+
+    void parseInput(std::ifstream& input) {
+        int start, k = 0, finals;
+        input >> start >> finals;
+        current_states.push_back(start);
+        for (int i = 0; i < finals; ++i) {
+            int stFin;
+            input >> stFin;
+            if (stFin >= statesAmount) {
+                throw std::runtime_error("Input format error");
+            }
+            isFinal[stFin] = true;
+        }
+
+        while (!input.eof()) {
+            int stFrom, stTo;
+            std::string str;
+            char ch;
+            input >> stFrom >> str >> stTo;
+            ch = str[0];
+
+            if (str.length() > 1) {
+                throw std::runtime_error("Input format error");
+            }
+            if (alphabet.find(ch) == alphabet.end()) {
+                if (k == alphabetSize) {
+                    throw std::runtime_error("Input format error");
+                }
+                alphabet[ch] = k;
+                k++;
+            }
+
+            int p = alphabet[ch];
+            if (stFrom >= statesAmount || stTo >= statesAmount) {
+                throw std::runtime_error("Input format error");
+            }
+
+            if (QS[stFrom][p].empty()) {
+                QS[stFrom][p] = std::vector<int>();
+            }
+            QS[stFrom][p].push_back(stTo);
+        }
+    }
+};
+
+int main() {
+    Automaton automaton;
+    std::string word;
+    std::cout << "Enter a word: ";
+    std::cin >> word;
+    automaton.getWord(word);
+    return 0;
+}
