@@ -1,0 +1,314 @@
+CREATE DATABASE IF NOT EXISTS lab1;
+USE lab1;
+
+CREATE TABLE User (
+    UserID INT PRIMARY KEY,
+    UserName VARCHAR(255),
+    Email VARCHAR(255)
+);
+
+CREATE TABLE Role (
+    RoleID INT PRIMARY KEY,
+    RoleName VARCHAR(255),
+    Description VARCHAR(255)
+);
+
+
+CREATE TABLE Permission (
+    PermissionID INT PRIMARY KEY,
+    PermissionName VARCHAR(255),
+    Description VARCHAR(255)
+);
+
+CREATE TABLE UserRole (
+    UserRoleID INT PRIMARY KEY,
+    UserID INT,
+    RoleID INT,
+    StartDate DATE,
+    EndDate DATE,
+    ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ModifiedBy INT,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (RoleID) REFERENCES Role(RoleID),
+    FOREIGN KEY (ModifiedBy) REFERENCES User(UserID)
+);
+
+CREATE TABLE UserPermission (
+    UserPermissionID INT PRIMARY KEY,
+    UserID INT,
+    PermissionID INT,
+    StartDate DATE,
+    EndDate DATE,
+    ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ModifiedBy INT,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (PermissionID) REFERENCES Permission(PermissionID),
+    FOREIGN KEY (ModifiedBy) REFERENCES User(UserID)
+);
+
+CREATE TABLE Product (
+    ProductID INT PRIMARY KEY,
+    ProductName VARCHAR(255),
+    Description VARCHAR(255)
+);
+
+CREATE TABLE Category (
+    CategoryID INT PRIMARY KEY,
+    CategoryName VARCHAR(255)
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    UserID INT,
+    OrderDate DATE,
+    TotalAmount DECIMAL(10, 2),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+CREATE TABLE OrderItem (
+    OrderItemID INT PRIMARY KEY,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
+
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY,
+    FirstName VARCHAR(255),
+    LastName VARCHAR(255),
+    Email VARCHAR(255)
+);
+
+CREATE TABLE Supplier (
+    SupplierID INT PRIMARY KEY,
+    SupplierName VARCHAR(255),
+    ContactPerson VARCHAR(255)
+);
+
+CREATE TABLE PurchaseOrder (
+    PurchaseOrderID INT PRIMARY KEY,
+    SupplierID INT,
+    OrderDate DATE,
+    TotalAmount DECIMAL(10, 2),
+    FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
+);
+
+CREATE TABLE PurchaseOrderItem (
+    PurchaseOrderItemID INT PRIMARY KEY,
+    PurchaseOrderID INT,
+    ProductID INT,
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    FOREIGN KEY (PurchaseOrderID) REFERENCES PurchaseOrder(PurchaseOrderID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
+
+
+CREATE TABLE Warehouse (
+    WarehouseID INT PRIMARY KEY,
+    WarehouseName VARCHAR(255),
+    Location VARCHAR(255)
+);
+
+CREATE TABLE Stock (
+    StockID INT PRIMARY KEY,
+    ProductID INT,
+    WarehouseID INT,
+    Quantity INT,
+    LastModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ModifiedBy INT,
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
+    FOREIGN KEY (WarehouseID) REFERENCES Warehouse(WarehouseID),
+    FOREIGN KEY (ModifiedBy) REFERENCES User(UserID)
+);
+
+-- DATA
+
+
+INSERT INTO User (UserID, UserName, Email)
+VALUES
+(1, 'JohnDoe', 'john.doe@example.com'),
+(2, 'JaneSmith', 'jane.smith@example.com'),
+(3, 'BobJohnson', 'bob.johnson@example.com'),
+(4, 'AliceWilliams', 'alice.williams@example.com'),
+(5, 'CharlieBrown', 'charlie.brown@example.com');
+
+INSERT INTO Role (RoleID, RoleName, Description)
+VALUES
+(1, 'Admin', 'Administrator role'),
+(2, 'User', 'Regular user role'),
+(3, 'Manager', 'Managerial role'),
+(4, 'Guest', 'Guest role'),
+(5, 'Support', 'Customer support role');
+
+INSERT INTO Permission (PermissionID, PermissionName, Description)
+VALUES
+(1, 'Read', 'Read permission'),
+(2, 'Write', 'Write permission'),
+(3, 'Execute', 'Execute permission'),
+(4, 'Delete', 'Delete permission'),
+(5, 'Admin', 'Administer permission');
+
+INSERT INTO UserRole (UserRoleID, UserID, RoleID, StartDate, EndDate, ModifiedBy)
+VALUES
+(1, 1, 1, '2023-01-01', '2023-12-31', 1),
+(2, 2, 2, '2023-01-01', '2023-12-31', 1),
+(3, 3, 3, '2023-01-01', '2023-12-31', 1),
+(4, 4, 2, '2023-01-01', '2023-12-31', 1),
+(5, 5, 4, '2023-01-01', '2023-12-31', 1);
+
+INSERT INTO UserPermission (UserPermissionID, UserID, PermissionID, StartDate, EndDate, ModifiedBy)
+VALUES
+(1, 1, 1, '2023-01-01', '2023-12-31', 1),
+(2, 2, 2, '2023-01-01', '2023-12-31', 1),
+(3, 3, 3, '2023-01-01', '2023-12-31', 1),
+(4, 4, 4, '2023-01-01', '2023-12-31', 1),
+(5, 5, 5, '2023-01-01', '2023-12-31', 1);
+
+INSERT INTO Product (ProductID, ProductName, Description)
+VALUES
+(1, 'Laptop', 'High-performance laptop'),
+(2, 'Smartphone', 'Latest smartphone model'),
+(3, 'Headphones', 'Noise-canceling headphones'),
+(4, 'Camera', 'Digital camera with advanced features'),
+(5, 'Printer', 'Color printer with wireless connectivity');
+
+INSERT INTO Category (CategoryID, CategoryName)
+VALUES
+(1, 'Electronics'),
+(2, 'Appliances'),
+(3, 'Clothing'),
+(4, 'Books'),
+(5, 'Furniture');
+
+INSERT INTO Orders (OrderID, UserID, OrderDate, TotalAmount)
+VALUES
+(1, 1, '2023-01-15', 1200.50),
+(2, 2, '2023-02-20', 550.00),
+(3, 3, '2023-03-10', 800.75),
+(4, 4, '2023-04-05', 350.25),
+(5, 5, '2023-05-12', 150.90);
+
+INSERT INTO OrderItem (OrderItemID, OrderID, ProductID, Quantity, UnitPrice)
+VALUES
+(1, 1, 1, 2, 600.25),
+(2, 2, 3, 1, 550.00),
+(3, 3, 2, 3, 266.92),
+(4, 4, 4, 1, 350.25),
+(5, 5, 5, 2, 75.45);
+
+INSERT INTO Customer (CustomerID, FirstName, LastName, Email)
+VALUES
+(1, 'John', 'Doe', 'john.doe.customer@example.com'),
+(2, 'Jane', 'Smith', 'jane.smith.customer@example.com'),
+(3, 'Bob', 'Johnson', 'bob.johnson.customer@example.com'),
+(4, 'Alice', 'Williams', 'alice.williams.customer@example.com'),
+(5, 'Charlie', 'Brown', 'charlie.brown.customer@example.com');
+
+INSERT INTO Supplier (SupplierID, SupplierName, ContactPerson)
+VALUES
+(1, 'TechCo', 'John Supplier'),
+(2, 'ElectroParts', 'Alice Contact'),
+(3, 'GadgetWorld', 'Bob Vendor'),
+(4, 'FashionHub', 'Sarah Fashion'),
+(5, 'HomeEssentials', 'Chris Homeware');
+
+INSERT INTO PurchaseOrder (PurchaseOrderID, SupplierID, OrderDate, TotalAmount)
+VALUES
+(1, 1, '2023-01-05', 12000.50),
+(2, 2, '2023-02-10', 5500.00),
+(3, 3, '2023-03-20', 8000.75),
+(4, 4, '2023-04-15', 3500.25),
+(5, 5, '2023-05-22', 1500.90);
+
+INSERT INTO PurchaseOrderItem (PurchaseOrderItemID, PurchaseOrderID, ProductID, Quantity, UnitPrice)
+VALUES
+(1, 1, 1, 20, 600.25),
+(2, 2, 3, 10, 550.00),
+(3, 3, 2, 15, 266.92),
+(4, 4, 4, 5, 350.25),
+(5, 5, 5, 8, 75.45);
+
+INSERT INTO Warehouse (WarehouseID, WarehouseName, Location)
+VALUES
+(1, 'Main Warehouse', 'City Center'),
+(2, 'Regional Warehouse A', 'Suburb A'),
+(3, 'Regional Warehouse B', 'Suburb B'),
+(4, 'Local Storage', 'Downtown'),
+(5, 'Temporary Storage', 'Outskirts');
+
+INSERT INTO Stock (StockID, ProductID, WarehouseID, Quantity, ModifiedBy)
+VALUES
+(1, 1, 1, 50, 1),
+(2, 2, 2, 30, 2),
+(3, 3, 3, 45, 3),
+(4, 4, 4, 15, 4),
+(5, 5, 5, 20, 5);
+
+
+CREATE FUNCTION fn_GetUserPermissions(IN p_UserID INT)
+RETURNS VARCHAR(255)
+BEGIN
+    --
+END;
+
+-- Triggers
+DELIMITER //
+CREATE TRIGGER trg_UpdateModifiedDate_UserRole
+BEFORE UPDATE ON UserRole
+FOR EACH ROW
+SET NEW.ModifiedDate = NOW();
+//
+DELIMITER ;
+
+
+DELIMITER //
+CREATE TRIGGER trg_UpdateModifiedDate_Stock
+BEFORE UPDATE ON Stock
+FOR EACH ROW
+SET NEW.LastModifiedDate = NOW();
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER trg_LogProductCreation_AfterInsert
+AFTER INSERT ON Product
+FOR EACH ROW
+INSERT INTO Product (ProductID, Action, LogDate)
+VALUES (NEW.ProductID, 'Created', NOW());
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER trg_UpdateTotalAmount_AfterUpdateOrders
+AFTER UPDATE ON Orders
+FOR EACH ROW
+BEGIN
+    UPDATE Orders SET TotalAmount = (SELECT SUM(Quantity * UnitPrice) FROM OrderItem WHERE OrderID = NEW.OrderID)
+    WHERE OrderID = NEW.OrderID;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER trg_UpdatePurchaseOrderTotalAmount
+AFTER INSERT ON PurchaseOrderItem
+FOR EACH ROW
+BEGIN
+    UPDATE PurchaseOrder
+    SET TotalAmount = TotalAmount + (NEW.Quantity * NEW.UnitPrice)
+    WHERE PurchaseOrderID = NEW.PurchaseOrderID;
+END;
+//
+DELIMITER ;
+
+
+--  Procedures
+CALL sp_CreateOrder(1, 2, 3);
+
+CALL sp_UpdateStock(1, 1, 10);
+
+SELECT fn_CalculateTotalAmount(1);
